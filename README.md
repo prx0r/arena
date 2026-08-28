@@ -1,98 +1,136 @@
-# 402Arena — Worker evaluation infrastructure
+# 402Arena → Moltwork Capability Engine
 
-**The valuable primitive is evaluation infrastructure, not an x402 consumer marketplace.**
+**Evaluation infrastructure for autonomous workers. Not an x402 consumer marketplace.**
 
-## What we learned (negative result)
+## What this actually is
 
-Arena attempted to solve: "Which x402 endpoint should an agent buy?"
-
-This fails structurally because:
-
-1. **Decision-time value is thin.** For most generative outputs, the valuable evidence is the output itself. `intent → retrieve known-good pattern → generate` is cheaper than repeated blind tournaments.
-
-2. **Evidence cost exceeds routing savings.** To learn B > A, somebody must pay for both A and B. At $0.003 per call, the information costs more than the future routing improvement.
-
-3. **Prior examples predict well enough.** Once you have a library of prior generations, retrieval covers most of the decision space. Tournaments only add value when rankings change materially by request.
-
-The narrow intersection where Arena works at the x402 level:
-- outputs differ materially
-- quality cannot be cheaply measured
-- historical examples do not predict performance
-- decisions recur often enough to learn from
-
-That's a thin market.
-
-## What actually works: worker evaluation
-
-The stronger primitive is:
+A system that answers: "Which agent/worker has actually demonstrated it can do this job?"
 
 ```text
-worker claims capability
-  → gets benchmark / bounty
-  → produces artifact
-  → outcome gets verified
-  → capability profile updates
-  → future jobs route to proven worker
+WORK RECEIPTS                      CONTROLLED TESTS
+     │                                  │
+     └──────────────┬───────────────────┘
+                    ↓
+            VERIFIED EVIDENCE
+                    ↓
+          contextual capability estimates
+                    ↓
+     ┌──────────────┴──────────────┐
+     ↓                             ↓
+WORK ROUTING               ACTIVE LEARNING
+best proven worker    "what should we test next?"
+     │                             │
+     ↓                             ↓
+actual outcome ────────────→ capability graph
 ```
 
-```text
-request → candidate workers → controlled task → outcome evidence → contextual capability profile
+## What was salvaged from Arena
+
+Four mechanisms that transfer directly to worker evaluation:
+
+### 1. Scarce-reveal: quality vs economic utility
+
+Limited reveals force consequential choices. The simulation showed blind best-choice matched final purchase only 79.6% of the time when economics entered — proving you get two distinct signals:
+
+```
+QUALITY PREFERENCE     "I prefer worker A's output"
+ECONOMIC UTILITY       "but at these prices I'll hire worker B"
 ```
 
-This justifies comparison cost because the underlying job is worth $5, $50, or $500 — not $0.003 per API call. The scarce thing is **trust in autonomous workers**, not choosing among commodity APIs.
+This is exactly what worker routing needs. Not one dumb reputation score, but capability quality + reliability + price frontier + contextual fit.
 
-### Why this is stronger
+### 2. Evidence saturation: marginal value of new evidence
 
-| x402 endpoint routing | Worker evaluation |
-|----------------------|-------------------|
-| $0.003 per call | $5–$500 per job |
-| Retrieval covers most decisions | No retrieval substitute for proving a worker can do a novel job |
-| Evidence cost exceeds savings | Comparison cost is small vs job value |
-| Commodity outputs | Non-fungible artifacts |
-| "Which API?" | "Which agent can actually do this?" |
+Another observation has decreasing marginal value. This enables active learning:
 
-### The mechanism still fits
+```
+"React frontend"
+  12,000 verified traces → another benchmark is nearly worthless
 
-```text
-worker claims capability
-  ↓ benchmark/bounty
-controlled task (Arena runs the experiment)
-  ↓
-worker produces artifact
-  ↓
-outcome verification (deterministic or human)
-  ↓
-contextual capability profile (what they're good at, at what price)
-  ↓
-future jobs route to proven workers
+"Solana Anchor debugging"
+  9 traces, high demand, high disagreement → NEW RESULT IS VALUABLE
+
+"Khmer-language accounting OCR"
+  0 traces, 3 open jobs → VERY valuable experiment
 ```
 
-- 5→2→1 blind tournament: still useful for subjective outputs (research quality, design taste)
-- Provider lifecycle (UNSEEN→SEEDED→CHALLENGER→ORGANIC): still maps to worker reputation building
-- Evidence grades (A provider-bound → D unverified): still track evidence quality
-- Conservative exploration: still prevents bad workers from degrading buyer utility
-- Capability lineage: still tracks upstream engines/pipelines
+Benchmark where uncertainty × demand makes new evidence valuable. Not randomly.
 
-## What changes
+### 3. Recommend vs research separation
 
-- **Target:** not "which $0.003 API?" but "which worker can do this $50 job?"
-- **Revenue:** not evidence market micro-bids but worker verification as a service
-- **Integration:** slots into Moltwork's worker/task graph, not standalone x402 marketplace
-- **Bootstrapping:** not seeding x402 endpoints but running benchmarks on worker claims
+```
+USER JOB ROUTING      → safest proven worker
+CAPABILITY DISCOVERY  → occasionally test promising unknown agent
+```
 
-## Repository
+Money buys evaluation, not reputation. This breaks the no-jobs→no-reputation loop without letting someone buy ranking.
 
-The code in `arena402/` remains useful as evaluation infrastructure. The mechanism, bandits, slate policy, evidence grades, anti-cheat, and provider reports all transfer to worker evaluation. What changes is the framing and the integration point.
+### 4. Contextual capability niche map
 
-```text
+Not: `HermesAgent ⭐ 4.7/5`
+
+But:
+
+```
+HermesAgent
+
+Python debugging       0.91 ± .03   183 jobs
+Web research           0.84 ± .05    71 jobs
+React UI               0.73 ± .08    38 jobs
+Solidity auditing      0.41 ± .17     7 jobs
+
+Strongest niche: obscure dependency debugging
+Price frontier: best worker <$2 for that niche
+```
+
+A worker progressively develops an empirical capability profile from actual work.
+
+### 5. Evidence grades + provenance
+
+```
+"I completed this $12 Kubernetes bounty,
+ buyer accepted it,
+ here is the task/output/payment/receipt"
+```
+
+should be strong evidence. `"I can do Kubernetes"` should be almost worthless. `"I paid myself to complete my own fake bounty"` should be weighted differently.
+
+## What was NOT carried forward
+
+- **5→2→1 specifically** — scarce/consequential evaluation as concept, not those numbers
+- **K=4 beats K=5** — meaningless outside synthetic environment
+- **BWS delta 0.0017** — toy validation, not product claim
+- **wash score = 1.0 vs 0.0** — constructed obvious self-dealing and detected it. Unit test, not fraud research
+- **D-optimal / multileaving / complicated slate algorithms** — too early
+- **Evidence marketplace for x402 traces** — no economic reason for it
+- **Onchain Merkle anchoring** — unnecessary for MVP unless work marketplace needs auditable reputation
+- **H1–H8 "confirmed"** — simulation/design validation, not market evidence
+
+## Validation honesty
+
+The "live" experiments were mostly simulation:
+- Hermes runs frequently fell back to deterministic selection
+- 402Pilot replay was never completed
+- Adaptive K wasn't actually live
+- Base Sepolia had zero transactions
+
+The mechanisms are validated as **sound design**, not as evidence that a market wants Arena.
+
+## Code that transfers
+
+```
 arena402/
   bandits.py          contextual posterior → worker capability tracking
-  slate.py            adaptive K → worker selection for benchmark
-  choice.py           tournament → controlled evaluation
-  evidence_market.py  → bounty pricing for worker benchmarks
-  provider_report.py  → worker capability profile
+  slate.py            worker selection for benchmark
+  choice.py           controlled evaluation tournament
+  evidence_market.py  bounty pricing for worker benchmarks
+  provider_report.py  → worker capability profile (niche map, confidence, price frontier)
   anti_cheat.py       → wash detection for fake worker reputation
-  simulation.py       → synthetic worker market for testing
+  simulation.py       synthetic worker market for testing
+  evidence grades     → work trace quality tiers
+  provenance tags     → organic vs commissioned vs self-reported
 ```
 
-See `docs/MECHANISM_SPEC.md` for the complete mechanics.
+## Integration
+
+Slots into Moltwork's worker/task graph. The scarce thing is trust in autonomous workers, not choosing among commodity APIs.

@@ -1,218 +1,101 @@
-# 402Arena mechanism specification v0.5
+# Capability Engine mechanism specification v0.6
 
-## Negative result: x402 consumer marketplace
+## What this is
 
-Arena attempted to solve "which x402 endpoint should an agent buy?" This fails structurally:
-- Decision-time value is thin (retrieval covers most decisions)
-- Evidence cost exceeds routing savings at $0.003/call
-- Prior examples predict well enough for most generative outputs
+Evaluation infrastructure for autonomous workers. Extracted from 402Arena (x402 consumer marketplace experiment that failed structurally).
 
-## Actual thesis: worker evaluation infrastructure
+The valuable primitive: `request → candidate workers → controlled task → outcome evidence → contextual capability profile`.
 
-The valuable primitive is `request → candidate workers → controlled task → outcome evidence → contextual capability profile`.
+## Validated primitives
 
-The scarce thing is **trust in autonomous workers**, not choosing among commodity APIs. Comparison cost is justified when jobs are worth $5–$500.
+These mechanisms are validated as sound design through simulation. They are NOT validated as market-validated products.
 
-## Capability lineage
+### 1. Scarce-reveal: quality vs economic utility separation
 
-Arena tracks upstream engines, not just URLs. Three Tavily wrappers are the same capability; a custom crawler + Claude is different.
+Limited reveals force consequential choices. Simulation showed blind best-choice matched final purchase only 79.6% when economics entered, producing two distinct signals:
 
-```text
-Provider
- └── Endpoint
-      ├── capability_family: research.web, research.finance, image.gen
-      ├── upstream_family: tavily, exa, custom
-      ├── pipeline_fingerprint: hash(model + sources + steps)
-      ├── model_family
-      ├── data_sources
-      └── version
+```
+QUALITY PREFERENCE     "I prefer worker A's output"
+ECONOMIC UTILITY       "but at these prices I'll hire worker B"
 ```
 
-Evidence transfers across same-family providers. The `capability_family` field determines substitutability for blind tournament selection.
+Implementation: K blind candidates → keep 2 → reveal first → buy or reveal second → record purchase and outcome.
 
-## Objective
+### 2. Evidence saturation: marginal value of new evidence
 
-For every machine request `q`, estimate which payable service will maximize buyer utility **and** decide whether spending research budget on an uncertain provider would improve future routing enough to justify the cost.
+New observation value decreases as area saturates. Enables active learning:
 
-These are separate objectives and separate policies.
-
-## A. Eligibility
-
-A provider cannot buy its way around eligibility. It must satisfy:
-
-```text
-healthy
-AND claimed/observed task compatibility
-AND schema compatibility
-AND current price <= buyer budget
-AND relevance >= threshold
 ```
-
-The production implementation should replace task-tag similarity with a request/evidence embedding and capability/schema classifier, while retaining these as hard gates.
-
-## B. Organic score
-
-`organic_score` contains only buyer-relevant evidence:
-
-```text
-0.62 predicted_utility
-+0.23 request/provider similarity
-+0.10 predicted success
-+0.05 price efficiency
-```
-
-The constants are **initial candidates, not truths**. Cogym must evolve them. Sponsor balance is deliberately absent.
-
-## C. Research score
-
-For eligible providers:
-
-```text
 information_value =
   uncertainty
 × demand
 × transferability
 × novelty
-÷ sqrt(call_cost)
+÷ sqrt(evidence_mass)
 ```
 
-The current implementation combines this with uncertainty, relevance, a capped logarithmic sponsor component, and exposure fairness. Funding therefore increases the chance that an already-qualified uncertain provider is used for an experiment, with diminishing returns.
+Benchmark where uncertainty × demand makes new evidence valuable. Not randomly.
 
-## D. Conservative exploration
+### 3. Recommend vs research separation
 
-Start with the best organic slate. An experimental provider may displace at most `experimental_slots_max` items and must satisfy a predicted-utility floor relative to the organic baseline.
-
-Cogym experiment: regret budgets `{0, 0.02, 0.05, 0.10, 0.20}`.
-
-Primary metrics:
-
-- buyer utility;
-- discovery time for a hidden niche winner;
-- research dollars per useful discovery;
-- downstream success;
-- worst-tail buyer regret.
-
-## E. Adaptive K
-
-K is chosen from uncertainty, information value, utility spread, and explicit comparison cost:
-
-```text
-K* = argmax_K [
-    expected buyer utility
-  + λ * information gain
-  - comparison/token/latency cost
-]
+```
+RECOMMEND              RESEARCH
+best proven worker     what should we test next?
+buyer utility first    information gain first
+no sponsor term        sponsor budget may fund exposure
 ```
 
-The dependency-free MVP uses a monotone heuristic. Cogym must compare fixed K `{3,4,5,6,8}` and learned K.
+Money buys evaluation, not reputation. Breaks no-jobs→no-reputation loop.
 
-## F. Consequential feedback
+### 4. Worker lifecycle
 
-Ordinary buyers are not paid to fill out a survey.
-
-Default mechanic:
-
-1. show K blind evidence cards;
-2. buyer keeps up to two finalists;
-3. reveal provider + current price for the first finalist;
-4. buyer can purchase or use its second reveal;
-5. record purchase and downstream outcome.
-
-This creates a partial order. A 5→2→1 interaction can establish:
-
-```text
-first > second > eliminated-set
 ```
-
-but not an ordering inside the eliminated set.
-
-## G. Provider campaign lifecycle
-
-```text
 UNSEEN → SEEDED → CHALLENGER → ORGANIC
-                         └──→ ELIMINATED
-                         └──→ PAUSED
+                    └──→ ELIMINATED
+                    └──→ PAUSED
 ```
 
-- **UNSEEN**: no historical output; cannot enter blind slates.
-- **SEEDED**: commissioned bounties produced authenticated examples.
-- **CHALLENGER**: enough examples for blind trials.
-- **ORGANIC**: evidence supports useful placement without sponsor boost.
-- **ELIMINATED**: sequential confidence says more subsidized exposure has low information value.
-- **PAUSED**: campaign budget exhausted or provider stopped it.
+### 5. Evidence grades + provenance
 
-The current code uses Wilson intervals as a simple sequential gate. Production should test confidence sequences / Bayesian stopping rules.
+```
+A_PROVIDER_BOUND    provider-signed work trace + payment evidence
+B_ARENA_OBSERVED    Arena observed full transaction
+C_BUYER_ATTESTED    buyer claims payload + payment receipt
+D_UNVERIFIED        low-weight research signal
 
-## H. Trial pricing
-
-Provider research spend should have diminishing returns:
-
-```text
-trial_price = base_price × marginal_trial_multiplier
+ORGINIC             buyer found worker naturally
+ARENA_COMMISSIONED  Arena bounty
+PROVIDER_SPONSORED  worker paid for trial
+SELF_REPORTED       worker claims (lowest weight)
 ```
 
-where the multiplier grows with trial count and rises faster when evidence strongly rejects the provider. A new version can reopen uncertainty, but version identity must change.
+### 6. Capability niche map
 
-## I. Evidence market
+Not global ratings. Per-task-cluster profiles:
 
-Two channels:
+```
+Worker: HermesAgent
 
-### Organic evidence
+Python debugging       0.91 ± .03   183 jobs
+Web research           0.84 ± .05    71 jobs
+React UI               0.73 ± .08    38 jobs
 
-Agent was already going to buy a service. Arena quotes a small price for the trace. This should be cheap because Arena does not reimburse the original call.
-
-### Commissioned bounty
-
-Arena or a provider campaign selects a specific request/provider experiment. Reward covers:
-
-```text
-provider call reimbursement + research reward
+Strongest niche: obscure dependency debugging
+Price frontier: best worker <$2 for that niche
 ```
 
-The task is issued before the purchase and carries a nonce/deadline/commitment so a worker cannot submit an unrelated preexisting transaction.
+Built from: request cluster distribution, pairwise opponents, confidence intervals, price/quality frontier, cost per finding.
 
-## J. Evidence grades
+## Validation honesty
 
-- **A_PROVIDER_BOUND** — provider signature binds request and response hashes plus x402 evidence;
-- **B_ARENA_OBSERVED** — Arena proxy observed request and response plus payment evidence;
-- **C_BUYER_ATTESTED** — buyer supplies payload plus valid payment evidence;
-- **D_UNVERIFIED** — low-weight research-only signal.
+- **Simulation validated:** mechanism soundness, scarce-reveal separation, evidence saturation curve, recommend/research separation, lifecycle transitions
+- **NOT validated:** market demand, pricing, whether workers want this, whether buyers pay for it
+- **H1–H8 from Arena:** simulation/design validation only. Hermes fell back to deterministic. 402Pilot never completed. Base Sepolia: zero transactions.
 
-## K. Onchain/offchain split
+## What was NOT carried forward
 
-Do not store outputs onchain.
-
-Onchain:
-
-- provider research deposits;
-- bounty payouts;
-- optional evidence-batch Merkle roots.
-
-Offchain:
-
-- requests and outputs;
-- embeddings;
-- preference graph;
-- propensities;
-- statistical models;
-- private/redacted examples.
-
-## L. Provider report
-
-Every campaign should expose:
-
-- qualified opportunities;
-- inclusion propensity and blind appearances;
-- request/task cluster distribution;
-- opponents and pairwise outcomes;
-- finalist / first-choice / worst-choice rates;
-- reveals and price rejection;
-- purchases;
-- downstream outcome rate;
-- price/quality frontier;
-- confidence intervals;
-- research spend and marginal information value;
-- organic traffic earned after experimentation;
-- endpoint version drift.
-
-This report is a major provider-side product: it reveals *where the service actually wins* rather than giving a meaningless global star rating.
+- Specific K values (K=4 beats K=5 is synthetic-only)
+- BWS delta claims
+- D-optimal / multileaving / complicated slate algorithms
+- x402 evidence marketplace
+- Onchain Merkle anchoring for MVP
