@@ -1,19 +1,17 @@
-# 402Arena mechanism specification v0.4
+# 402Arena mechanism specification v0.5
 
-## Thesis: non-fungible machine outputs
+## Negative result: x402 consumer marketplace
 
-Arena is valuable when: different providers produce materially different outputs + quality is hard to pre-judge + output costs enough that choosing well matters.
+Arena attempted to solve "which x402 endpoint should an agent buy?" This fails structurally:
+- Decision-time value is thin (retrieval covers most decisions)
+- Evidence cost exceeds routing savings at $0.003/call
+- Prior examples predict well enough for most generative outputs
 
-| Category | Fungible? | Arena fit | Priority |
-|----------|-----------|-----------|----------|
-| Images | massively different | excellent | **#1** |
-| Deep research reports | yes | excellent | **#2** |
-| Video | yes | excellent (expensive) | later |
-| Specialized analysis | yes | excellent | #3 |
-| Code | varies | medium | #4 |
-| Web search | mostly fungible | weak | routing only |
-| RPC / price feeds | commodity | none | — |
-| Creative writing | commodity | none | — |
+## Actual thesis: worker evaluation infrastructure
+
+The valuable primitive is `request → candidate workers → controlled task → outcome evidence → contextual capability profile`.
+
+The scarce thing is **trust in autonomous workers**, not choosing among commodity APIs. Comparison cost is justified when jobs are worth $5–$500.
 
 ## Capability lineage
 
