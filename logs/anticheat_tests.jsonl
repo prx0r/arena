@@ -1,0 +1,2 @@
+{"test": "wash", "result": {"wash_score": 1.0, "reasons": ["self-deal buyer owner_of_p1 == owner of p1", "self-deal buyer owner_of_p1 == owner of p1", "self-deal buyer owner_of_p1 == owner of p1", "self-deal buyer owner_of_p1 == owner of p1", "duplicate prompts 1 keys repeated >3"], "is_wash": true}, "ts": 1787582176.9814, "model": "ox-alpha-free"}
+{"test": "bws", "result": {"full_ranking_cheat_ev": 0.001, "bws_scarce_cheat_ev": -0.0007, "delta": 0.0017000000000000001, "conclusion": "BWS scarce disincentivizes random vs full ranking pays random"}, "ts": 1787582176.981434}

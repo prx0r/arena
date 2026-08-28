@@ -1,0 +1,5 @@
+{"proposal": {"k": 3, "wash_thr": 0.4, "similarity_thr": 0.25, "voi_min": 0.18}, "based_on": "live 9 scarce 250", "model": "ox-alpha-free", "ts": 1787583936.897883}
+{"proposal": {"k": 4, "wash_thr": 0.4, "similarity_thr": 0.15, "voi_min": 0.22}, "based_on": "live 9 scarce 250", "model": "ox-alpha-free", "ts": 1787583936.8979092}
+{"proposal": {"k": 3, "wash_thr": 0.6, "similarity_thr": 0.25, "voi_min": 0.22}, "based_on": "live 9 scarce 250", "model": "ox-alpha-free", "ts": 1787583936.8979232}
+{"proposal": {"k": 3, "wash_thr": 0.6, "similarity_thr": 0.2, "voi_min": 0.15}, "based_on": "live 9 scarce 250", "model": "ox-alpha-free", "ts": 1787583936.8979335}
+{"proposal": {"k": 3, "wash_thr": 0.4, "similarity_thr": 0.15, "voi_min": 0.15}, "based_on": "live 9 scarce 250", "model": "ox-alpha-free", "ts": 1787583936.897942}

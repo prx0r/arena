@@ -1,0 +1,31 @@
+{"run_id": "slate_fd4e6eaa4106c0b966a177d1", "query": "find obscure Python API docs", "best": "3pZblRvF", "worst": "-rFFvpbW", "k": 5, "mode": "arena", "model": "ox-alpha-free", "ts": 1787581915.3625853}
+{"run_id": "slate_1577bc38d77fb9e5c308a797", "query": "find obscure Python API docs", "best": "uLvm4snD", "worst": "rc7t_cYY", "k": 5, "mode": "arena", "model": "ox-alpha-free", "ts": 1787581989.8219063}
+{"run_id": "slate_9a54a0cdfafc882a42e1ef55", "query": "research inference scaling", "best": "IqwXRKyY", "worst": "rzJVSzTE", "k": 5, "mode": "arena", "model": "ox-alpha-free", "ts": 1787582017.1192877}
+{"iter": 0, "best": "iDFHcsiZ", "worst": "vO4tYBaa", "wash": 0.0, "model": "ox-alpha-free->mimo-fallback", "ts": 1787582193.4181945, "providers": ["p2", "p1"]}
+{"iter": 1, "best": "SFAZsxNF", "worst": "11OPBwkw", "wash": 0.0, "model": "ox-alpha-free->mimo-fallback", "ts": 1787582193.4668987, "providers": ["p2", "p1"]}
+{"iter": 2, "best": "pcINOMLo", "worst": "dSygEowF", "wash": 0.0, "model": "ox-alpha-free->mimo-fallback", "ts": 1787582193.5102272, "providers": ["p1", "p2"]}
+{"iter": 0, "query": "autonomous query 0 find Python", "best": "ekvy8etj", "worst": "dqJZmJum", "wash": 0.0, "model_used": "deterministic", "slate_id": "slate_2e1b9e", "ts": 1787583881.852135}
+{"iter": 1, "query": "autonomous query 1 find Python", "best": "rvPdATYs", "worst": "MgC1svQC", "wash": 0.0, "model_used": "deterministic", "slate_id": "slate_31c8a2", "ts": 1787583902.1382847}
+{"iter": 2, "query": "autonomous query 2 find Python", "best": "to6FQF2Z", "worst": "kIomCze_", "wash": 0.0, "model_used": "deterministic", "slate_id": "slate_38ee58", "ts": 1787583922.346317}
+{"iter": 0, "query": "weather current temperature", "k": 5, "best": "MzQKQk5e", "worst": "3mjsneBG", "wash": 0.0, "model": "deterministic", "task_id": "t_90df39b2", "ts": 1787584173.3957796}
+{"iter": 1, "query": "find Python docs autonomous", "k": 4, "best": "AoeirUTA", "worst": "2ZSpG-2H", "wash": 0.0, "model": "deterministic", "task_id": "t_a6317cea", "ts": 1787584219.6719372}
+{"iter": 2, "query": "find obscure Python API docs", "k": 5, "best": "xZYF0v55", "worst": "msjmALZF", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584265.5642667}
+{"iter": 3, "query": "find obscure Python API docs", "k": 4, "best": "3RzJgUrh", "worst": "WpJZUXto", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584328.3873122}
+{"iter": 4, "query": "extract tables PDF", "k": 5, "best": "bEXsimnC", "worst": "YyfIuNxp", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584373.7930424}
+{"iter": 5, "query": "code search login bug", "k": 4, "best": "aODUz8V7", "worst": "dYD0z9H-", "wash": 0.0, "model": "mimo-v2.5", "task_id": null, "ts": 1787584431.1444874}
+{"iter": 6, "query": "weather current temperature", "k": 5, "best": "sdvTPVYc", "worst": "aTDxcox_", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584496.1711257}
+{"iter": 7, "query": "code search login bug", "k": 4, "best": "0wbmXiH7", "worst": "tsOdZNp8", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584541.5984414}
+{"iter": 8, "query": "research inference scaling", "k": 5, "best": "Nv0ZnjXU", "worst": "PiaCepM-", "wash": 0.0, "model": "mimo-v2.5", "task_id": null, "ts": 1787584597.4898021}
+{"iter": 9, "query": "weather current temperature", "k": 4, "best": "M52pHJKH", "worst": "5cvvOttT", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584661.1608474}
+{"iter": 10, "query": "code search login bug", "k": 5, "best": "7Jo0GPgr", "worst": "xOLViGjV", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584724.606854}
+{"iter": 11, "query": "weather current temperature", "k": 4, "best": "ODh0alka", "worst": "YOFOSDOI", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584770.0640879}
+{"iter": 0, "query": "research inference scaling", "k": 5, "best": "XB4HmXDE", "worst": "7OYfB2OM", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584776.8199756}
+{"iter": 12, "query": "research inference scaling", "k": 5, "best": "eGWDuQod", "worst": "nbjdwUIY", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584815.5462413}
+{"iter": 1, "query": "research inference scaling", "k": 4, "best": "gpnwIMU5", "worst": "6sA4dYSf", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584837.3246477}
+{"iter": 13, "query": "extract tables PDF", "k": 4, "best": "vCMYAzHo", "worst": "vu6-aBCr", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584861.116269}
+{"iter": 2, "query": "weather current temperature", "k": 5, "best": "-URRD7Uj", "worst": "J5ej3zbW", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584902.3980758}
+{"iter": 14, "query": "research inference scaling", "k": 5, "best": "YNkRG_Ui", "worst": "QF_PV2WG", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584906.585011}
+{"iter": 3, "query": "extract tables PDF", "k": 4, "best": "if7BgY2d", "worst": "I2Y6vbTL", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584963.3319886}
+{"iter": 15, "query": "find obscure Python API docs", "k": 4, "best": "mCD6WLwy", "worst": "vVtlt4k5", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787584971.2784915}
+{"iter": 16, "query": "extract tables PDF", "k": 5, "best": "ITa_IReo", "worst": "eYWWxLzV", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787585016.754732}
+{"iter": 4, "query": "weather current temperature", "k": 5, "best": "vKinKt1v", "worst": "0UxhylpR", "wash": 0.0, "model": "deterministic", "task_id": null, "ts": 1787585026.0552802}

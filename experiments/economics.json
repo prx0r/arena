@@ -1,0 +1,31 @@
+{
+  "objective": "maximize future routing utility per subsidy dollar",
+  "offline_datasets": [
+    "402Pilot frozen 20,575 provider-response replay",
+    "WS-DREAM QoS user-service matrices",
+    "LMArena pairwise preferences / RouteLLM datasets"
+  ],
+  "policies": [
+    "random",
+    "always_cheapest",
+    "empirical_mean",
+    "PA-DCT",
+    "VOI-Thompson",
+    "nearest-evidence + preference rerank"
+  ],
+  "primary_metrics": [
+    "mean quality",
+    "total spend",
+    "quality per dollar",
+    "oracle regret",
+    "new-provider discovery rate",
+    "provider/task coverage",
+    "chronological holdout win rate",
+    "subsidy dollars per useful new edge"
+  ],
+  "splits": {
+    "train": "first 60% chronologically",
+    "validation": "next 20%",
+    "secret_holdout": "last 20%"
+  }
+}
