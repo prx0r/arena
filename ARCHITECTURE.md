@@ -1,447 +1,271 @@
 # 402Arena — Architecture
 
 **Date:** 2026-08-28
-**Status:** Revised — separate primitives, honest assessment
+**Status:** Revised — blind taste test for AI work
 
 ---
 
 ## What Arena Is
 
-Arena is the **empirical router for machine-paid services**. Before an agent spends its next cent on an endpoint, Arena predicts which service is worth it based on what happened on comparable previous calls.
+Arena is the **blind taste test for AI work**. Humans pick their favourite output from multiple providers. Arena accumulates genuine quality signals. Agents route based on what humans actually think is good, not metadata.
 
-Core rule: **Money buys experiments. Evidence buys organic ranking. Nobody pays for position.**
+Core rule: **Human preference is the only anti-slop mechanism that works.**
 
 ---
 
 ## What Arena Is Not
 
-- Not a marketplace (that's Moltwork)
-- Not a reputation layer (that's Reputation.dev)
-- Not a payment system (that's x402 protocol)
-- Not a content hosting platform
+- Not a router (that's RouteNet, Agent402)
+- Not a payment layer (that's x402, MPP)
+- Not a marketplace (that's Moltwork, Agent402)
+- Not a directory (that's CDP Bazaar, SwarmBazaar)
+
+Arena is a **quality intelligence layer**. It knows what's actually good because humans said so.
 
 ---
 
-## The Clean Separation
+## The Problem Arena Solves
 
-```
-MOLTWORK
-"What useful thing already exists that I can inspect/buy?"
+The x402 ecosystem has 15,000+ endpoints. Most agents pick by:
+- Price (cheapest wins)
+- Uptime (is it online?)
+- Metadata (what does the docs say?)
 
-402ARENA
-"If I need to make a paid call now, which provider should get my money?"
-```
+None of that tells you **what the output is actually like.**
 
-Those are genuinely different problems.
+Two providers can both return "research results" for the same query. One gives you 5 relevant articles with good analysis. The other gives you 5 random links with a ChatGPT summary. Same price. Same uptime. Completely different quality.
 
-### Moltwork
-
-> **The market for reusable machine work.**
-
-Products, Boards, Requests, Stacks, progressive inspection.
-
-Solves **PRODUCT UNCERTAINTY**: "Is THIS artifact worth buying?"
-
-### 402Arena
-
-> **The empirical router for machine-paid services.**
-
-Before an agent spends its next cent on an endpoint, Arena predicts which service is worth it based on what happened on comparable previous calls.
-
-Solves **PROVIDER UNCERTAINTY**: "If I call THIS endpoint with a new request, what is likely to happen?"
+**Arena is the only way to know the difference.**
 
 ---
 
-## Why They Must Stay Separate
+## How Arena Works
 
-| | **Moltwork** | **402Arena** |
+```
+Human needs: "Research report on AI regulation in the EU"
+
+Arena shows (blind):
+  A  [research report from Provider X]     $0.08
+  B  [research report from Provider Y]     $0.12
+  C  [research report from Provider Z]     $0.05
+
+Human reads all 3.
+Picks B as best.
+Arena records: B > A, B > C
+
+Next human asks the same question:
+Arena already knows B is best for EU research.
+Recommends B with confidence.
+```
+
+---
+
+## The Subjective Sweet Spot
+
+Arena matters for work where quality varies and humans can tell the difference:
+
+| Category | Example | Why Arena Matters |
 |---|---|---|
-| Economic object | Product / work / specialist | Callable provider |
-| Primary question | "Is this thing worth buying?" | "Who should handle this request?" |
-| Evidence | Actual product samples | Historical comparable calls |
-| Transaction | Buy/reveal artifact | Invoke endpoint |
-| Reuse | Same product sold repeatedly | New output generated each call |
-| Cold start | Requests/bounties + subsidized samples | Sponsored research experiments |
-| Learning | sample→continue→unlock→repeat | context→provider→output→outcome |
-| Non-stationarity | Version product | Continuously discount old service evidence |
-| Core graph | demand/product/dependency graph | contextual provider/evidence graph |
-| Major moat | inventory + demand + composition | longitudinal machine experience |
-| Scope | Moltwork market | **all x402 providers** |
+| **Research reports** | "Analyze AI regulation landscape" | Depth, accuracy, insight vary 10x |
+| **Writing / copywriting** | "Write a blog post about X" | Style, clarity, voice vary |
+| **Code review** | "Review this contract for vulnerabilities" | Thoroughness varies dramatically |
+| **Data analysis** | "Find trends in this dataset" | Insight quality varies |
+| **Summarization** | "Summarize this paper" | What's included/excluded matters |
+| **Legal / compliance** | "Summarize these regulations" | Accuracy matters, wrong = expensive |
+| **Financial analysis** | "Analyze this company's position" | Wrong = expensive |
+| **Design critique** | "Evaluate this design" | Taste matters |
 
-**Moltwork can't do Arena's job** because you can't sample a future API response before making the call. All you have is historical evidence. That's Arena's domain.
+Arena does NOT matter for:
 
-**Arena can't do Moltwork's job** because Arena routes to providers, not products. Moltwork owns the product catalog, progressive reveal, and composition.
-
----
-
-## How They Interact (Eventually)
-
-```
-              AGENT
-                │
-        "I need something"
-                │
-                ▼
-             MOLTWORK
-        does it exist already?
-           /           \
-        YES             NO
-         │               │
-         ▼               ▼
-   buy Product      need capability
-                         │
-                         ▼
-                     402ARENA
-                  which x402 service?
-                         │
-                         ▼
-                      invoke
-```
-
-And a **Stack** can transparently use both:
-
-```
-STACK
-│
-├── buy existing Moltwork dataset
-├── buy existing Moltwork report
-│
-├── Arena.route("web-search")
-│       └── external x402 endpoint
-│
-├── Arena.route("PDF extraction")
-│       └── another x402 endpoint
-│
-└── synthesis
-        ↓
-   new Moltwork Product
-```
-
-**Moltwork composes products. Arena dynamically sources services.**
+| Category | Example | Why Arena Doesn't Matter |
+|---|---|---|
+| UUID generation | "Generate a UUID" | All providers identical |
+| Currency conversion | "USD to EUR" | All providers identical |
+| Gas price lookup | "What's the gas price?" | All providers identical |
+| Geocoding | "Address to lat/lng" | All providers identical |
+| Simple web search | "Search for X" | Quality difference minimal |
 
 ---
 
-## Arena's Core Mechanism
+## Why Human Choices Are Non-Slop Intel
 
-**Input:** need + budget
-**Output:** best source of cognition
+Agent choices are:
+- Algorithmic (similarity scores, price comparison)
+- Fast (millisecond decisions)
+- Shallow (metadata-based)
+- **Gameable** (optimize for the algorithm)
+
+Human choices are:
+- **Genuine** (actually read the output)
+- **Subjective** (style, depth, accuracy)
+- **Consequential** (they care about the result)
+- **Hard to game** (you can't optimize for a blind test)
+- **Transferable** (one human's preference informs others)
+
+**Non-slop intel = data that can't be faked, gamed, or synthesized.**
+
+When a human reads 3 research reports and picks the best one, that's a real quality signal. No algorithm produced it. No metadata predicted it. No synthetic data approximated it. A person with taste said "this one is better."
+
+That's the moat.
+
+---
+
+## The Evidence Graph
+
+Each human choice produces weighted edges:
+
+```
+DISCOVERY     Human saw 5 options
+CHOICE        Human picked B
+QUALITY       Human rated B: 4.5/5
+COMPARISON    B > A, B > C (from the same session)
+CATEGORY      "EU research" (task type)
+PRICE         B cost $0.08, A cost $0.05, C cost $0.12
+TIMESTAMP     when the evaluation happened
+EVALUATOR     who chose (human identity, not anonymous)
+```
+
+Over time, Arena accumulates category-specific quality intelligence:
+
+```
+For "EU research":
+  Provider B: wins 73% of comparisons, avg 4.3/5, $0.08
+  Provider A: wins 18% of comparisons, avg 3.8/5, $0.05
+  Provider C: wins 9% of comparisons, avg 3.2/5, $0.12
+
+Recommendation:
+  "For EU research, Provider B is best value.
+   Provider A is cheaper but lower quality.
+   Provider C is overpriced for what you get.
+   Confidence: high (47 human evaluations)"
+```
+
+---
+
+## How To Get the Data
+
+### Method 1: Humans Choose Naturally
+
+Arena is an MCP tool:
 
 ```python
-result = arena.procure(
-    need="current Python OAuth failure analysis",
-    budget=0.05,
-    confidence=0.85
+result = arena.compare(
+    task="Write a research report on EU AI regulation",
+    providers=["exa", "tavily", "custom"],
+    budget=0.15
 )
 ```
 
-**Arena does:**
+Arena:
+1. Calls 3 providers with the same query
+2. Stores all outputs
+3. Shows them blind to the human
+4. Human picks favourite
+5. Arena records the preference
+
+**Humans do this because they need to choose a provider anyway.** Arena makes the choice easier and captures the data.
+
+### Method 2: Funded Evaluation
 
 ```
-retrieve candidates from any x402 source
-    ↓
-metadata rank (category fit, price, freshness)
-    ↓
-shortlist 5
-    ↓
-purchase tiny samples from 3         -$0.006
-    ↓
-drop obvious loser
-    ↓
-inspect top 2 further                -$0.006
-    ↓
-buy best                             -$0.018
-    ↓
-unused                               $0.020
+Arena posts:
+"Evaluate 3 research reports on AI regulation.
+ Pick the best one.
+ We'll pay you $0.50 for your time."
+
+10 humans evaluate → 30 preference edges
+Cost: $5.00
+```
+
+### Method 3: Provider-Funded Testing
+
+```
+Provider B says:
+"I'm better than A and C for research.
+ Fund a comparison test to prove it."
+
+Arena runs blind test with 20 humans.
+Result: B wins 78%.
+Provider B gets: verified quality badge.
 ```
 
 ---
 
-## What Arena Routes To
+## The Revenue Model
 
-Arena is source-agnostic. It routes to anything accessible via x402:
+### Free: Humans Evaluating
 
-| Source Type | Example | Arena Treats As |
-|---|---|---|
-| **x402 API** | web search, code execution, data lookup | Candidate with price + reliability |
-| **Moltwork Product** | pre-made research report | Candidate with price + abstract |
-| **Moltwork Service** | specialist quick_query() | Candidate with price + specialty |
-| **Moltwork Board** | analyst team's recurring output | Candidate with price + track record |
-| **Direct Agent** | custom research prototype | Candidate with price + uncertainty |
-| **Internal** | agent does it themselves | Baseline to beat (cost + time + confidence) |
+Humans get better recommendations by choosing blind. They don't pay. They generate the data.
 
-**This is Arena's real market: the entire x402 universe.** Moltwork becomes one provider universe Arena can understand, not Arena's reason to exist.
+### Paid: Providers Want Intelligence
+
+```
+"How do I compare to competitors?"
+  → Arena shows: "You win 73% for EU research, but only 41% for US tech"
+
+"Where am I losing?"
+  → Arena shows: "You lose on depth. Your reports are shorter than competitors."
+
+"What should I improve?"
+  → Arena shows: "Add more citations. Winners average 12 sources, you average 4."
+```
+
+**Providers pay for quality intelligence.** Not for routing. For knowing where they stand.
+
+### Paid: Agents Want Quality Routing
+
+```
+Agent: "For this research task, which provider is actually best?"
+Arena: "Provider B wins 73% of human comparisons for this task type.
+        Confidence: high (47 evaluations).
+        Cost: $0.08."
+Agent: "Send it."
+```
+
+**Agents pay $0.003 for Arena's recommendation to save $0.20 on a bad call.**
 
 ---
 
-## Arena's Data Model
+## The MCP Server
 
-### Economic Preference Graph
-
-Arena produces weighted edges, not just A > B:
-
-```
-DISCOVERY EDGE         abstract selected over another         weak
-INSPECTION EDGE        sample chosen over another sample      useful
-CONTINUATION EDGE      paid to see more after first sample    stronger
-PURCHASE EDGE          fully bought; alternatives weren't     strong
-REPEAT EDGE            bought again later                     very strong
-OUTCOME EDGE           actually produced better result        strongest
-```
-
-These edges are Arena's moat. They are economic preference data, not star ratings.
-
-### Contextual Provider Quality
-
-Arena doesn't try to calculate Provider X = 91/100 globally. `ContextualBradleyTerry` separates global skill from **task-specific provider effects**:
-
-```
-P(A > B | task)
-```
-
-And maintains separate models for:
-- blind/pre-price preference
-- post-price economic preference
-
-So price doesn't contaminate the quality model.
-
-Arena can eventually know:
-
-```
-BigSearch
-  general search         91
-  breaking news          96
-  GitHub issues          61
-  obscure documentation  54
-
-TinySearch
-  general search         73
-  breaking news          62
-  GitHub issues          94
-  obscure documentation  97
-```
-
-That's much more useful than reputation. And much broader than Moltwork.
-
-### ArenaEvidence
+Arena as an MCP server. Any agent can call it.
 
 ```python
-@dataclass
-class ArenaEvidence:
-    subject: str                    # what was evaluated
-    task_category: str              # python_research, code_gen, ...
-    buyer: str                      # who made the request
-    evaluator: str                  # who evaluated (may differ)
+# Compare providers blind
+result = arena.compare(task="...", providers=[...], budget=0.15)
 
-    discovery_selected: bool        # chosen from retrieval slate
-    discovery_rank: int             # position in shortlist
+# Get quality recommendation
+rec = arena.recommend(task="...", category="research")
 
-    sample_requested: bool          # paid for a random sample
-    sample_continued: bool          # paid for a second sample
-    sample_count: int               # how many samples
+# Record a human choice
+arena.record_choice(session_id="...", chosen="B", ratings={"A":3, "B":5, "C":2})
 
-    full_purchased: bool            # bought the full thing
-    price: float                    # what was paid
-
-    outcome_grade: Optional[str]    # A/B/C/D — only if evaluated
-    outcome_verified: bool          # was outcome objectively checked?
-
-    timestamp: float
+# Get provider quality report
+report = arena.provider_report(provider_id="...", category="research")
 ```
 
 ---
 
-## Arena's Operating Modes
+## What Arena Shares
 
-### 1. Procurement (primary)
+| Standard | Arena Uses |
+|---|---|
+| **x402** | Pay for provider calls |
+| **ERC-8004** | Provider identity |
+| **MCP** | Agent integration |
+| **ArenaEvidence** | Quality records |
 
-Agent needs cognition. Arena finds the best source.
-
-```
-"Get me current SaaS pain point analysis"  budget: $0.05
-    → Arena retrieves, samples, buys
-    → Returns: Product C ($0.018), confidence 91%
-    → Records: C > A, C > B preference edges
-```
-
-### 2. Scout (exploration)
-
-Arena proactively discovers new providers.
-
-```
-Arena notices: category "python_api_research" has 3 incumbents
-    → Allocates $0.02 to sample 2 new entrants
-    → New entrant #47 produces strong sample
-    → Records: #47 sample_continued = True
-    → #47 now eligible for future procurement rounds
-```
-
-### 3. Build vs Buy
-
-Arena compares acquisition strategies, not just sellers.
-
-```
-"Get me accounting SaaS complaints"
-
-OPTION A   Buy existing Product     $0.008   confidence 91%
-OPTION B   Call specialist          $0.015   confidence 94%
-OPTION C   Do internally            $0.031   confidence 76%
-OPTION D   Post Request             $0.020   confidence ?
-
-→ BUY A (cheapest reliable option)
-```
-
-### 4. Standing Order (competitive subscriptions)
-
-Recurring need, not recurring provider.
-
-```
-Every morning:
-    Need: best new AI infrastructure pain-point intelligence
-    Max spend: $0.03
-    Freshness: <24h
-    Minimum confidence: 0.85
-
-    Arena evaluates today's candidates
-    Different provider may win each day
-```
+Arena does NOT require Moltwork, Reputation.dev, or any specific marketplace.
 
 ---
 
-## Cold Start: Arena's Legitimate Innovation
+## The Moat
 
-An unknown endpoint has the standard market death spiral:
+Arena's moat is the **human preference graph** — weighted edges from actual humans reading actual outputs and picking their favourites.
 
-```
-no history
-    ↓
-router doesn't select it
-    ↓
-no calls
-    ↓
-no history
-```
+Nobody else has this data. RouteNet knows if a provider is online. Agent402 knows what it costs. Arena knows **what it's actually like.**
 
-Arena introduces:
-
-```
-PROVIDER FUNDS RESEARCH
-    $5
-    ↓
-Arena waits for suitable real requests
-    ↓
-new provider gets controlled experimental slots
-    ↓
-actual output observed
-    ↓
-actual comparisons occur
-    ↓
-provider earns — or fails to earn — organic placement
-```
-
-Critically, sponsor balance isn't part of `organic_score`. The code maintains a separate experimental score and permits at most a bounded experimental slot subject to buyer-regret constraints.
-
-This answers: **"I'm a brand-new x402 endpoint. How do I prove I'm better?"**
-
----
-
-## The Evidence Market: Arena's Weirdest/Best Idea
-
-Another agent makes a real x402 call anyway:
-
-```
-Agent buys Search X
-    ↓
-receives output
-    ↓
-Arena says:
-"That observation is useful to us.
-I'll pay $0.0004 for its trace."
-```
-
-Arena prices evidence based on:
-- uncertainty (how much don't we know?)
-- coverage/saturation (how much evidence exists?)
-- future demand (how many agents will use this routing?)
-- freshness (has quality changed?)
-
-And reduces bids as a provider/task region becomes saturated.
-
-Arena becomes: **the market for machine experience.**
-
-Moltwork sells cognition. Arena buys **evidence about cognition providers**.
-
----
-
-## Non-Stationarity: Arena's Hidden Advantage
-
-Service X used to be great but changed model yesterday. Service Y just dropped its price 80%. Service Z became unreliable.
-
-Arena's DiscountedContextualBeta discounts old evidence, so it reacts to outages and price changes.
-
-For Moltwork, `product_v37` is immutable/versioned. If it changes, evaluate `product_v38`.
-
-For an API, the identifier stays constant while its behaviour silently changes. Arena's longitudinal evidence is therefore far more valuable.
-
----
-
-## Anti-Cheat
-
-Arena's mechanisms prevent gaming:
-
-- **Scarcity**: Limited inspection budget makes choices consequential
-- **Wash detection**: Self-dealing, duplicate prompts, burst timing, wallet correlation
-- **BWS**: Best-worst scaling makes random cheating unprofitable
-- **Deterministic reveal**: Buyers can't choose which sample they see
-- **Budget constraint**: Can't evaluate everyone (which would make evaluation free)
-
----
-
-## What Arena Shares With Other Systems
-
-Evidence is interoperable. Products remain distinct.
-
-```
-ArenaEvidence
-     │
-     ├──► Reputation.dev
-     ├──► Moltwork (optional)
-     └──► external router
-
-MoltworkReceipt
-     │
-     ├──► Reputation.dev
-     └──► Arena (when relevant)
-```
-
-Arena does NOT require:
-- Moltwork to exist
-- Reputation.dev to exist
-- Any specific marketplace
-- Any specific contract deployment
-
-Arena works with any x402 endpoint. Moltwork products are just one source type.
-
----
-
-## Known Issues (Honest Assessment)
-
-### Critical
-
-1. **H7 downgraded to PLUMBING ONLY** — The Hermes daemon doesn't actually use Hermes's choice. It precomputes best/worst by max/min similarity, tells Hermes the answer in the prompt, then records the precomputed answer regardless. No real agent preference data exists yet.
-
-2. **Scarce-reveal result is synthetic** — 79.6% vs 100% comes from synthetic personas with generated similarity/quality/price values. Not real agents. The hypothesis is excellent but not empirically proven.
-
-3. **paid_rank_bad experiment has a flaw** — The deliberately "bad" policy has slightly higher buyer utility (0.85768 vs 0.85640) because the sponsored provider is actually the hidden winner. Needs negative controls with bad/mediocre/adversarial sponsors.
-
-### Important
-
-4. **Retrieval uncertainty selector has a bug** — `retrieval.py` picks the provider with the *most* observations as "uncertain" (should be least). `slate.py` has the correct posterior-based uncertainty. Standardize on `slate.py`.
-
-5. **OPE propensities not logged** — Architecture includes IPS/SNIPS/doubly-robust estimators, but `slate.py` acknowledges inclusion probability is only a conservative proxy. Production needs exact policy probabilities.
-
-6. **ArenaEvidenceV1 uses SHA-256 placeholder** — Not a genuine cryptographic signature. Chain witness/escrow is at Sepolia stage, not production.
-
-7. **feedback_simulation.py hardcodes assumptions** — "base low effort probability = 30%, consequential low effort = 2%" is an input assumption, not an observed result. Cannot validate the claim that scarcity reduces low-effort behavior.
+The more humans evaluate, the better Arena's recommendations become. That's the flywheel.
 
 ---
 
@@ -449,21 +273,19 @@ Arena works with any x402 endpoint. Moltwork products are just one source type.
 
 | # | What | Why |
 |---|---|---|
-| 1 | Fix Hermes daemon | Actually use LLM's independent choice |
-| 2 | Real provider catalog | 20+ real x402 endpoints |
-| 3 | Scarce/full with real agents | Empirical proof of H2 |
-| 4 | 402Pilot 20K replay | Validate with frozen real data |
-| 5 | Procurement mode | Core mechanism — automated pipeline |
-| 6 | ArenaEvidence + edge types | Data model everything depends on |
-| 7 | Negative control sponsors | Validate H1 properly |
-| 8 | Fix retrieval uncertainty bug | Standardize on slate.py |
-| 9 | Log exact propensities | Make OPE machinery meaningful |
-| 10 | Base Sepolia deployment | Validation gate |
+| 1 | MCP server | Distribution to every agent |
+| 2 | Blind comparison tool | Core mechanism — show outputs, human picks |
+| 3 | Index top 50 quality-varying endpoints | Not all 15,000, just the ones where quality varies |
+| 4 | Human evaluation pipeline | Get real preference data |
+| 5 | Provider quality reports | Revenue model — providers pay for intelligence |
+| 6 | Category-specific routing | "For EU research, Provider B wins" |
+| 7 | Standing comparisons | "Compare these 3 providers for my ongoing needs" |
+| 8 | Evidence graph visualization | Show providers their competitive position |
 
 ---
 
-## The One-Line Definition
+## The One-Liner
 
-> **Before an agent spends its next cent on an endpoint, Arena predicts which service is worth it based on what happened on comparable previous calls.**
+> **Arena is the blind taste test for AI work. Humans pick their favourite. Providers learn where they stand. Agents route based on what humans actually think is good.**
 
-That is distinct enough to be its own product. And it works even if Moltwork never existed.
+Non-slop intel. That's the product.
