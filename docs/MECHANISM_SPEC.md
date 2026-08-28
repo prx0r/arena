@@ -1,12 +1,19 @@
-# 402Arena mechanism specification v0.3
+# 402Arena mechanism specification v0.4
 
-## Vertical: Research Arena (first)
+## Thesis: non-fungible machine outputs
 
-Research/search is the first vertical. Real x402 demand exists (Tavily ~60K calls/422 payers, Exa ~11K/265). Arena learns: **for what query does which research/search engine win?**
+Arena is valuable when: different providers produce materially different outputs + quality is hard to pre-judge + output costs enough that choosing well matters.
 
-Second vertical: images (structurally clean blind comparison, lower demand today).
-Third: code generation. Later: video.
-Not: creative writing (agents call LLMs directly, no moat).
+| Category | Fungible? | Arena fit | Priority |
+|----------|-----------|-----------|----------|
+| Images | massively different | excellent | **#1** |
+| Deep research reports | yes | excellent | **#2** |
+| Video | yes | excellent (expensive) | later |
+| Specialized analysis | yes | excellent | #3 |
+| Code | varies | medium | #4 |
+| Web search | mostly fungible | weak | routing only |
+| RPC / price feeds | commodity | none | — |
+| Creative writing | commodity | none | — |
 
 ## Capability lineage
 

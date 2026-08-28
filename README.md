@@ -1,78 +1,72 @@
-# 402Arena — Empirical routing for machine-service intelligence
+# 402Arena — Arena for non-fungible machine outputs
 
-**402Arena learns which machine service produces the best outcome for each kind of job.**
+**402Arena learns which machine service produces the best output for each kind of job.**
 
-> **Money buys experiments. Evidence buys organic ranking.**
+> **Don't Arena commodities. Arena outputs where taste/quality matters.**
 
-A provider can fund controlled blind trials or bounties that generate missing evidence. Funding cannot directly increase the buyer-facing organic score. Buyers get useful recommendations from prior real calls; their consequential reveal/purchase behavior creates preference data; agents can sell verified x402 traces when Arena currently values that evidence.
+## The thesis
 
-## Vertical: Research Arena (first)
+Arena gets valuable when these three things are simultaneously true:
 
-Research/search is the first vertical because real x402 demand exists:
+1. Different providers produce **materially different outputs**
+2. Quality is **difficult to know before buying**
+3. The output costs enough that **choosing well matters**
 
-| Provider | 30d calls | Unique payers | What it does |
-|----------|-----------|---------------|--------------|
-| Tavily search | ~60,307 | 422 | Agent web search |
-| Exa search | ~11,002 | 265 | Neural search + contents |
-| You.com deep research | — | — | $0.11 deep / $0.50 exhaustive |
-| Agent402 reports | — | — | $0.60–$1.10 finished research |
+This immediately disqualifies:
 
-Arena learns: **for what query does which research/search engine win?**
+| Category | Fungible? | Arena fit |
+|----------|-----------|-----------|
+| Web search | mostly (after LLM synthesis) | weak |
+| RPC / node access | commodity | none |
+| Price feeds | identical | none |
+| Raw LLM access | increasingly fungible | weak |
+| **Images** | **massively different** | **excellent** |
+| **Deep research reports** | **yes** | **excellent** |
+| **Video** | **yes** | **excellent, but expensive** |
+| Specialized analysis | yes | excellent |
+| Code | varies | medium |
 
-```text
-"latest news about X"
-    → Tavily may dominate
-
-"obscure technical papers about X"
-    → Exa may dominate
-
-"finance question with synthesis"
-    → You.com research
-
-"investigate this person's public footprint"
-    → specialized researcher
-
-"research this token"
-    → crypto-specific service
-```
-
-## Why research, not creative writing
-
-An agent holding an LLM can ask it to "write this better" directly. Generic prose has no moat for a middleman.
-
-Research is different because the product includes:
-- retrieval infrastructure
-- proprietary sources
-- multi-step search
-- citation handling
-- synthesis and specialization
-
-These are capabilities the buyer cannot trivially invoke themselves.
-
-## Why not images first?
-
-Images have cleaner blind comparison but lower current x402 demand (~34 calls/30 payers vs Tavily's 60K). Images are **#2** — structurally beautiful market, just less demand today.
-
-## Rank capabilities, not URLs
-
-The x402 ecosystem has tons of wrappers. Arena must understand capability lineage:
+## Why images are the cleanest first demo
 
 ```text
-Provider
- └── Endpoint
-      ├── capability_family: research.web
-      ├── upstream_family: tavily
-      ├── pipeline_fingerprint
-      ├── model_family
-      ├── data_sources
-      └── version
+same request
+
+Flux provider
+Imagen provider
+GPT Image provider
+Seedream provider
+specialized x402 design agent
+
+        ↓
+
+blind outputs
+
+ A    B    C    D    E
+
+        ↓
+
+which would you actually buy?
 ```
 
-Evidence transfers across same-family providers. Three Tavily wrappers are the same capability; a custom crawler + Claude is different.
+There is almost no ambiguity about what Arena contributes. Metadata cannot tell you which image you'll prefer. **You have to see the outputs.**
+
+## Why deep research is different from search
+
+Search: "find sources about Nvidia's Chinese competitors"
+→ Exa returns links, Tavily returns links. Pretty substitutable.
+
+Research job: "Produce an investment memo on Nvidia's Chinese competitors: market shares, funding, products, sanctions exposure, primary-source citations, and unresolved uncertainties."
+→ Provider A does 3 searches and slaps together prose. Provider B searches 40 sources, finds filings, reconciles contradictory numbers. Provider C has specialist financial datasets. **Those are different products.**
+
+Search results converge after `search engine → 10 pages → same LLM → synthesis`. Deep research reports don't.
+
+## Why not creative writing
+
+An agent holding an LLM can ask it to "write this better" directly. Generic prose has no moat for a middleman. Images, video, and research reports are different because the product includes retrieval infrastructure, proprietary sources, model choice, pipeline design, and specialization.
 
 ## How it works
 
-### Buyer mechanism: 5→2→1 blind tournament
+### 5→2→1 blind tournament
 
 ```text
 5 blind historical outputs
@@ -87,26 +81,6 @@ actual purchase + downstream outcome
 ```
 
 Partial order: `E > B > {A,C,D}`. No ordering among eliminated set.
-
-### Research routing
-
-```text
-query
-  ↓
-task classifier (research.web, research.finance, research.person, ...)
-  ↓
-find substitutable services by capability_family
-  ↓
-Arena posterior for this request cluster
-  ↓
-price / quality / latency frontier
-  ↓
-route
-  ↓
-capture outcome evidence
-  ↓
-update provider niches
-```
 
 ### Two separate policies
 
@@ -133,24 +107,37 @@ CHALLENGER
   └─ budget exhausted              → PAUSED
 ```
 
+### Capability lineage
+
+Arena tracks upstream engines, not just URLs. Three Flux wrappers are the same capability; a custom img2img pipeline is different.
+
+```text
+Provider
+ └── Endpoint
+      ├── capability_family: image.gen, research.finance, video.gen
+      ├── upstream_family: flux, imagen, custom
+      ├── pipeline_fingerprint
+      ├── model_family
+      ├── data_sources
+      └── version
+```
+
 ## Measurable quality dimensions
 
 ```text
 OBJECTIVE                          SUBJECTIVE / CONTEXTUAL
-citation validity                  usefulness
-source quality                     depth
-freshness                          relevance
-claim support                      clarity
-coverage                           what the buyer actually needed
-latency                            which report they preferred
-price
-failed calls
-duplication
+resolution                          aesthetic quality
+latency                             relevance to request
+price                               depth
+failed calls                        clarity
+duplication                         what the buyer actually needed
+citation validity (research)        which output they preferred
+source quality (research)
 
 CONSEQUENTIAL
 did buyer reveal it?
 did buyer purchase it?
-did agent use the information?
+did agent use the output?
 did downstream task succeed?
 ```
 
@@ -161,19 +148,11 @@ PYTHONPATH=. pytest -q
 PYTHONPATH=. python scripts/run_mechanism_sweep.py --rounds 1200 --seeds 12
 ```
 
-The deterministic synthetic market has 12 providers including a hidden cheap niche winner. It compares:
-
-- `organic_only` — incumbency / no exploration baseline
-- `random_explore` — one random challenger
-- `paid_rank_bad` — sponsor money corrupts rank
-- `separated_ids` — organic/research separation + contextual information value
-
 ## Base Sepolia witness
 
 - Chain ID: **84532** / CAIP-2 `eip155:84532`
 - RPC: `https://sepolia.base.org`
 - Testnet USDC: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
-- x402 test facilitator: `https://x402.org/facilitator`
 
 ```bash
 cd chain-ts && npm install && cp .env.example .env && npm run seller

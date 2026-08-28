@@ -1,32 +1,39 @@
-# HANDOVER — 2026-08-24 21:30 UTC
+# HANDOVER — 2026-08-24 22:00 UTC
 
 **Next agent: read this first. All other docs reference this.**
 
 ## What 402Arena Is
 
-402Arena learns which machine service produces the best outcome for each kind of job. First vertical: **Research Arena** — routing search/research queries to the provider that wins for that query type.
+Arena for non-fungible machine outputs. Where different providers produce materially different outputs, quality is hard to pre-judge, and choosing well matters.
 
-> **Money buys experiments. Evidence buys organic ranking.** (`README.md:5`)
+> **Don't Arena commodities. Arena outputs where taste/quality matters.**
 
-## Vertical Strategy (decided 2026-08-24)
+## Thesis (refined 2026-08-24)
 
-| Vertical | Demand | Arena value | Status |
-|----------|--------|-------------|--------|
-| **Search / research** | Very high (Tavily 60K, Exa 11K calls) | Very high | **#1 — now** |
-| **Deep reports / due diligence** | Medium | Very high | Layer 2 |
-| **Images** | Low-medium | Extremely high | **#2** |
-| Code generation | Likely useful | High | #3 |
-| Video | Low today | Huge later | Later |
-| Creative writing | Weak | Low | **No** (agents call LLMs directly) |
+Arena is valuable when three conditions hold simultaneously:
+1. Different providers produce **materially different outputs**
+2. Quality is **difficult to know before buying**
+3. The output costs enough that **choosing well matters**
 
-**Capability lineage added:** `capability_family`, `upstream_family`, `pipeline_fingerprint` fields on Provider/ProviderArm. Arena tracks upstream engines (tavily, exa, custom), not just URLs.
+This disqualifies search (too fungible after LLM synthesis), RPC, price feeds, raw LLM access. It points to images, deep research, video, specialized analysis, generated artifacts.
+
+## Verticals
+
+| Vertical | Different outputs? | Hard to pre-judge? | Arena fit | Status |
+|----------|-------------------|--------------------|-----------|--------|
+| **Images** | massively | yes | excellent | **#1 — cleanest demo** |
+| **Deep research reports** | yes | yes | excellent | **#2** |
+| Video | yes | yes | excellent (expensive) | later |
+| Specialized analysis | yes | yes | excellent | #3 |
+| Code | varies | often testable | medium | #4 |
+| Web search | somewhat | low | weak | routing only |
+| Creative writing | no | no | none | — |
 
 ## Current Status
 
-- **Tests:** 28/28 pass (mechanism, evidence_v1, evidence_market_v2, replay, ope, frontier, core)
-- **Chain:** Base Sepolia 0x2bc8a74 (0 tx, dry-run)
-- **Receipts:** 727+ total
-- **Repo:** pushed to `prx0r/arena` at `7105faf`
+- **Tests:** 28/28 pass
+- **Chain:** Base Sepolia (0 tx, dry-run)
+- **Repo:** `prx0r/arena` at `06f0bcc`
 
 ## What Works (H1-H8)
 
@@ -43,9 +50,11 @@
 
 ## Key experiment to prove this week
 
-> Given one research query and three interchangeable x402 research/search providers, can Arena predict which output a blind evaluator will prefer better than cheapest/default/random routing?
+> Given one image generation request and three different x402 image providers, can Arena predict which output a blind evaluator will prefer better than cheapest/random routing?
 
-That's the killer experiment. If it works, 402Arena becomes an **empirical routing layer for agent intelligence**.
+That's the killer experiment. Images are the cleanest demo: metadata cannot tell you which image you'll prefer. You have to see the outputs.
+
+If it works, 402Arena becomes the **empirical routing layer for non-fungible machine outputs**.
 
 ## Remaining gaps (top 5)
 
