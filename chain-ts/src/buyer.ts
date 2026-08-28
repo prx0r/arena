@@ -1,0 +1,28 @@
+import "dotenv/config";
+import { writeFile } from "node:fs/promises";
+import { wrapFetchWithPayment } from "@x402/fetch";
+import { x402Client, x402HTTPClient } from "@x402/core/client";
+import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { privateKeyToAccount } from "viem/accounts";
+import { bindEvidence } from "./evidence.js";
+import { verifyProviderEvidence } from "./providerEvidence.js";
+
+const pk = process.env.EVM_PRIVATE_KEY as `0x${string}`;
+if (!pk) throw new Error("EVM_PRIVATE_KEY required");
+const url = process.env.PAID_URL ?? "http://localhost:4021/api/search";
+const account = privateKeyToAccount(pk);
+const client = new x402Client(); client.register("eip155:*", new ExactEvmScheme(account));
+const paidFetch = wrapFetchWithPayment(fetch, client);
+const requestBody = JSON.stringify({ query: "Base Sepolia x402 evidence test" });
+const response = await paidFetch(url, { method:"POST", headers:{"content-type":"application/json"}, body:requestBody });
+const responseBody = await response.text();
+if (!response.ok) throw new Error(`paid request failed ${response.status}: ${responseBody}`);
+const parsed=JSON.parse(responseBody);
+if (!parsed.arenaEvidence || !(await verifyProviderEvidence(parsed.arenaEvidence))) throw new Error("provider evidence signature invalid");
+const coreResponse=JSON.stringify({ok:parsed.ok,query:parsed.query,result:parsed.result});
+if (parsed.arenaEvidence.responseHash !== (await import("./providerEvidence.js")).sha256Hex(coreResponse)) throw new Error("response hash mismatch");
+const http = new x402HTTPClient(client);
+const settle = http.getPaymentSettleResponse((name)=>response.headers.get(name));
+const envelope = bindEvidence({resourceUrl:url,payer:account.address,providerId:new URL(url).host,requestBody,responseBody:coreResponse,receipt:settle,transaction:(settle as any)?.transaction});
+await writeFile("arena-evidence.json", JSON.stringify({envelope,providerEvidence:parsed.arenaEvidence,response:parsed},null,2));
+console.log(JSON.stringify({envelope,providerEvidence:parsed.arenaEvidence},null,2));

@@ -1,0 +1,9 @@
+{
+  "schema": "cogym.worldpack.v1",
+  "kind": "arena402.routing.v1",
+  "version": "0.1.0",
+  "description": "Empirical routing and active exploration for x402/machine-payable services",
+  "entrypoint": "world.py",
+  "metrics": ["quality", "spend_usd", "quality_per_dollar", "regret", "provider_coverage"],
+  "gates": ["no_budget_violation"]
+}

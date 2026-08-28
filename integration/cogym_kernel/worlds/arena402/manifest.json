@@ -1,0 +1,7 @@
+{
+  "kind": "arena402.mechanism_lab",
+  "version": "2",
+  "description": "Deterministic 402Arena mechanism-design lab: choose a routing/exploration mechanism and replay identical synthetic markets.",
+  "distribution": "synthetic-cold-start-v2",
+  "hard_gates": ["buyer_utility >= 0.70", "sponsor_never_enters_organic_score == 1", "escrow_conservation == 1"]
+}
