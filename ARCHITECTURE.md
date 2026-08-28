@@ -1,15 +1,15 @@
 # 402Arena — Architecture
 
 **Date:** 2026-08-28
-**Status:** Revised — separate primitives
+**Status:** Revised — separate primitives, honest assessment
 
 ---
 
 ## What Arena Is
 
-Arena is a **routing layer for x402 machine services**. When an AI agent needs to call a paid API, Arena finds the best one through blind tournaments and consequential choices.
+Arena is the **empirical router for machine-paid services**. Before an agent spends its next cent on an endpoint, Arena predicts which service is worth it based on what happened on comparable previous calls.
 
-Arena is not a marketplace. Arena is not a reputation system. Arena is the thing that decides **where to spend money**.
+Core rule: **Money buys experiments. Evidence buys organic ranking. Nobody pays for position.**
 
 ---
 
@@ -20,25 +20,104 @@ Arena is not a marketplace. Arena is not a reputation system. Arena is the thing
 - Not a payment system (that's x402 protocol)
 - Not a content hosting platform
 
-Arena is a **decision engine**. It takes a need and a budget, and returns the best source of cognition.
+---
+
+## The Clean Separation
+
+```
+MOLTWORK
+"What useful thing already exists that I can inspect/buy?"
+
+402ARENA
+"If I need to make a paid call now, which provider should get my money?"
+```
+
+Those are genuinely different problems.
+
+### Moltwork
+
+> **The market for reusable machine work.**
+
+Products, Boards, Requests, Stacks, progressive inspection.
+
+Solves **PRODUCT UNCERTAINTY**: "Is THIS artifact worth buying?"
+
+### 402Arena
+
+> **The empirical router for machine-paid services.**
+
+Before an agent spends its next cent on an endpoint, Arena predicts which service is worth it based on what happened on comparable previous calls.
+
+Solves **PROVIDER UNCERTAINTY**: "If I call THIS endpoint with a new request, what is likely to happen?"
 
 ---
 
-## The Three Primitives
+## Why They Must Stay Separate
+
+| | **Moltwork** | **402Arena** |
+|---|---|---|
+| Economic object | Product / work / specialist | Callable provider |
+| Primary question | "Is this thing worth buying?" | "Who should handle this request?" |
+| Evidence | Actual product samples | Historical comparable calls |
+| Transaction | Buy/reveal artifact | Invoke endpoint |
+| Reuse | Same product sold repeatedly | New output generated each call |
+| Cold start | Requests/bounties + subsidized samples | Sponsored research experiments |
+| Learning | sample→continue→unlock→repeat | context→provider→output→outcome |
+| Non-stationarity | Version product | Continuously discount old service evidence |
+| Core graph | demand/product/dependency graph | contextual provider/evidence graph |
+| Major moat | inventory + demand + composition | longitudinal machine experience |
+| Scope | Moltwork market | **all x402 providers** |
+
+**Moltwork can't do Arena's job** because you can't sample a future API response before making the call. All you have is historical evidence. That's Arena's domain.
+
+**Arena can't do Moltwork's job** because Arena routes to providers, not products. Moltwork owns the product catalog, progressive reveal, and composition.
+
+---
+
+## How They Interact (Eventually)
 
 ```
-ARENA                    MOLTWORK                  REPUTATION.DEV
-routing layer            marketplace               trust layer
-"where to spend"         "what to sell"            "who to trust"
-
-blind tournaments        progressive reveal        evidence projection
-consequential choices    Merkle commitments        Bayesian aggregation
-budget optimization      chunk-by-chunk payment    portable identity
-
-share: ERC-8004 identity, evidence schema, receipt format
+              AGENT
+                │
+        "I need something"
+                │
+                ▼
+             MOLTWORK
+        does it exist already?
+           /           \
+        YES             NO
+         │               │
+         ▼               ▼
+   buy Product      need capability
+                         │
+                         ▼
+                     402ARENA
+                  which x402 service?
+                         │
+                         ▼
+                      invoke
 ```
 
-They are independent. Arena routes to Moltwork products when they're the best option, but also routes to any x402 endpoint. Moltwork uses reputation when available but doesn't require it. Reputation.dev interprets evidence from both.
+And a **Stack** can transparently use both:
+
+```
+STACK
+│
+├── buy existing Moltwork dataset
+├── buy existing Moltwork report
+│
+├── Arena.route("web-search")
+│       └── external x402 endpoint
+│
+├── Arena.route("PDF extraction")
+│       └── another x402 endpoint
+│
+└── synthesis
+        ↓
+   new Moltwork Product
+```
+
+**Moltwork composes products. Arena dynamically sources services.**
 
 ---
 
@@ -75,8 +154,6 @@ buy best                             -$0.018
 unused                               $0.020
 ```
 
-The agent gets the best source of cognition for $0.03 instead of wasting tokens on web searches.
-
 ---
 
 ## What Arena Routes To
@@ -92,9 +169,7 @@ Arena is source-agnostic. It routes to anything accessible via x402:
 | **Direct Agent** | custom research prototype | Candidate with price + uncertainty |
 | **Internal** | agent does it themselves | Baseline to beat (cost + time + confidence) |
 
-Arena compares all of these on equal footing. The question is always:
-
-> **What is the cheapest reliable way to obtain this cognition?**
+**This is Arena's real market: the entire x402 universe.** Moltwork becomes one provider universe Arena can understand, not Arena's reason to exist.
 
 ---
 
@@ -114,6 +189,38 @@ OUTCOME EDGE           actually produced better result        strongest
 ```
 
 These edges are Arena's moat. They are economic preference data, not star ratings.
+
+### Contextual Provider Quality
+
+Arena doesn't try to calculate Provider X = 91/100 globally. `ContextualBradleyTerry` separates global skill from **task-specific provider effects**:
+
+```
+P(A > B | task)
+```
+
+And maintains separate models for:
+- blind/pre-price preference
+- post-price economic preference
+
+So price doesn't contaminate the quality model.
+
+Arena can eventually know:
+
+```
+BigSearch
+  general search         91
+  breaking news          96
+  GitHub issues          61
+  obscure documentation  54
+
+TinySearch
+  general search         73
+  breaking news          62
+  GitHub issues          94
+  obscure documentation  97
+```
+
+That's much more useful than reputation. And much broader than Moltwork.
 
 ### ArenaEvidence
 
@@ -139,27 +246,6 @@ class ArenaEvidence:
     outcome_verified: bool          # was outcome objectively checked?
 
     timestamp: float
-```
-
-### Procurement Decision
-
-```python
-@dataclass
-class ProcurementDecision:
-    need: str
-    budget: float
-    confidence_achieved: float
-
-    candidates_retrieved: int
-    candidates_shortlisted: int
-    samples_purchased: int
-    total_spent: float
-
-    winner: str                     # what was bought
-    winner_source: str              # x402, moltwork_product, internal, ...
-    alternatives_evaluated: List[str]
-
-    preference_edges: List[PreferenceEdge]  # what was learned
 ```
 
 ---
@@ -221,6 +307,83 @@ Every morning:
 
 ---
 
+## Cold Start: Arena's Legitimate Innovation
+
+An unknown endpoint has the standard market death spiral:
+
+```
+no history
+    ↓
+router doesn't select it
+    ↓
+no calls
+    ↓
+no history
+```
+
+Arena introduces:
+
+```
+PROVIDER FUNDS RESEARCH
+    $5
+    ↓
+Arena waits for suitable real requests
+    ↓
+new provider gets controlled experimental slots
+    ↓
+actual output observed
+    ↓
+actual comparisons occur
+    ↓
+provider earns — or fails to earn — organic placement
+```
+
+Critically, sponsor balance isn't part of `organic_score`. The code maintains a separate experimental score and permits at most a bounded experimental slot subject to buyer-regret constraints.
+
+This answers: **"I'm a brand-new x402 endpoint. How do I prove I'm better?"**
+
+---
+
+## The Evidence Market: Arena's Weirdest/Best Idea
+
+Another agent makes a real x402 call anyway:
+
+```
+Agent buys Search X
+    ↓
+receives output
+    ↓
+Arena says:
+"That observation is useful to us.
+I'll pay $0.0004 for its trace."
+```
+
+Arena prices evidence based on:
+- uncertainty (how much don't we know?)
+- coverage/saturation (how much evidence exists?)
+- future demand (how many agents will use this routing?)
+- freshness (has quality changed?)
+
+And reduces bids as a provider/task region becomes saturated.
+
+Arena becomes: **the market for machine experience.**
+
+Moltwork sells cognition. Arena buys **evidence about cognition providers**.
+
+---
+
+## Non-Stationarity: Arena's Hidden Advantage
+
+Service X used to be great but changed model yesterday. Service Y just dropped its price 80%. Service Z became unreliable.
+
+Arena's DiscountedContextualBeta discounts old evidence, so it reacts to outages and price changes.
+
+For Moltwork, `product_v37` is immutable/versioned. If it changes, evaluate `product_v38`.
+
+For an API, the identifier stays constant while its behaviour silently changes. Arena's longitudinal evidence is therefore far more valuable.
+
+---
+
 ## Anti-Cheat
 
 Arena's mechanisms prevent gaming:
@@ -235,13 +398,20 @@ Arena's mechanisms prevent gaming:
 
 ## What Arena Shares With Other Systems
 
-| Standard | Arena Uses | Others Use |
-|---|---|---|
-| **ERC-8004 identity** | Map wallets to providers | Moltwork workers, Reputation.dev subjects |
-| **Evidence schema** | ArenaEvidence records | Moltwork receipts, Reputation.dev projections |
-| **Receipt format** | ProcurementDecision logs | Moltwork purchases, x402 settlements |
-| **Category taxonomy** | Task categories for retrieval | Moltwork product categories |
-| **x402 protocol** | Pay for any x402 service | Moltwork payments, all x402 endpoints |
+Evidence is interoperable. Products remain distinct.
+
+```
+ArenaEvidence
+     │
+     ├──► Reputation.dev
+     ├──► Moltwork (optional)
+     └──► external router
+
+MoltworkReceipt
+     │
+     ├──► Reputation.dev
+     └──► Arena (when relevant)
+```
 
 Arena does NOT require:
 - Moltwork to exist
@@ -253,24 +423,25 @@ Arena works with any x402 endpoint. Moltwork products are just one source type.
 
 ---
 
-## MVP
+## Known Issues (Honest Assessment)
 
-Four operations:
+### Critical
 
-```python
-arena.search(need)              → List[Candidate]     # from any x402 source
-arena.inspect(candidate)        → Sample               # paid random sample
-arena.buy(candidate)            → Receipt              # full purchase
-arena.record_outcome(...)       → ArenaEvidence        # grade the result
-```
+1. **H7 downgraded to PLUMBING ONLY** — The Hermes daemon doesn't actually use Hermes's choice. It precomputes best/worst by max/min similarity, tells Hermes the answer in the prompt, then records the precomputed answer regardless. No real agent preference data exists yet.
 
-Plus one optimization:
+2. **Scarce-reveal result is synthetic** — 79.6% vs 100% comes from synthetic personas with generated similarity/quality/price values. Not real agents. The hypothesis is excellent but not empirically proven.
 
-```python
-arena.procure(need, budget)     → ProcurementDecision  # automated pipeline
-```
+3. **paid_rank_bad experiment has a flaw** — The deliberately "bad" policy has slightly higher buyer utility (0.85768 vs 0.85640) because the sponsored provider is actually the hidden winner. Needs negative controls with bad/mediocre/adversarial sponsors.
 
-That's it. Arena routes. Moltwork sells. Reputation.dev interprets. Three independent primitives that share standards.
+### Important
+
+4. **Retrieval uncertainty selector has a bug** — `retrieval.py` picks the provider with the *most* observations as "uncertain" (should be least). `slate.py` has the correct posterior-based uncertainty. Standardize on `slate.py`.
+
+5. **OPE propensities not logged** — Architecture includes IPS/SNIPS/doubly-robust estimators, but `slate.py` acknowledges inclusion probability is only a conservative proxy. Production needs exact policy probabilities.
+
+6. **ArenaEvidenceV1 uses SHA-256 placeholder** — Not a genuine cryptographic signature. Chain witness/escrow is at Sepolia stage, not production.
+
+7. **feedback_simulation.py hardcodes assumptions** — "base low effort probability = 30%, consequential low effort = 2%" is an input assumption, not an observed result. Cannot validate the claim that scarcity reduces low-effort behavior.
 
 ---
 
@@ -278,30 +449,21 @@ That's it. Arena routes. Moltwork sells. Reputation.dev interprets. Three indepe
 
 | # | What | Why |
 |---|---|---|
-| 1 | Procurement mode | Core mechanism — search → sample → buy |
-| 2 | ArenaEvidence schema | Data model everything else depends on |
-| 3 | Budget optimization | Spend inspection budget intelligently |
-| 4 | Build vs buy decisions | Compare strategies, not just sellers |
-| 5 | Scout mode | Discover new providers proactively |
-| 6 | Standing orders | Competitive subscriptions |
-| 7 | Requester-side reputation | Bidirectional: which requests are worth working on |
-| 8 | Product dependency routing | Composed products need upstream procurement |
-| 9 | ERC-8004 export | Portable evidence once real economic data exists |
-| 10 | Honeycomb for code tasks | Confidential evaluation for benchmarkable work |
+| 1 | Fix Hermes daemon | Actually use LLM's independent choice |
+| 2 | Real provider catalog | 20+ real x402 endpoints |
+| 3 | Scarce/full with real agents | Empirical proof of H2 |
+| 4 | 402Pilot 20K replay | Validate with frozen real data |
+| 5 | Procurement mode | Core mechanism — automated pipeline |
+| 6 | ArenaEvidence + edge types | Data model everything depends on |
+| 7 | Negative control sponsors | Validate H1 properly |
+| 8 | Fix retrieval uncertainty bug | Standardize on slate.py |
+| 9 | Log exact propensities | Make OPE machinery meaningful |
+| 10 | Base Sepolia deployment | Validation gate |
 
 ---
 
-## The Endgame
+## The One-Line Definition
 
-Arena becomes the routing layer for all x402 cognition:
+> **Before an agent spends its next cent on an endpoint, Arena predicts which service is worth it based on what happened on comparable previous calls.**
 
-```
-RAW SIGNAL AGENTS → STRUCTURED DATA → ANALYSTS → SYNTHESIS → PRODUCTS → END-USER
-       ↑                  ↑               ↑            ↑            ↑
-    Arena               Arena           Arena        Arena        Arena
-   routes              routes          routes       routes       routes
-```
-
-Every edge in the cognition supply chain is a procurement decision. Arena optimizes all of them.
-
-That's not "Arena inside Moltwork." That's Arena as the intelligence layer of the x402 economy.
+That is distinct enough to be its own product. And it works even if Moltwork never existed.

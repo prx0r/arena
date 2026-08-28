@@ -106,18 +106,18 @@ Saturates at $1 budget. No marginal gain beyond $5. Mechanism is capital-efficie
 
 ---
 
-## Hypothesis Status
+## Hypothesis Status (Honest)
 
-| H | Claim | Status | Evidence |
-|---|---|---|---|
-| H1 | Sponsor ≠ organic rank | **CONFIRMED** | separated_ids quality = paid_rank_bad quality |
-| H2 | Scarce reveals create real choices | **CONFIRMED** | 79.6% vs 100% — 20.4% switch |
-| H3 | K=4 optimal | PROVISIONAL | Synthetic proven, live not validated |
-| H4 | BWS anti-cheat works | **CONFIRMED** | delta 0.0017 |
-| H5 | Wash detectable | **CONFIRMED** | 1.0 self-deal vs 0.0 clean |
-| H6 | Lifecycle funds | PROVISIONAL | Not stressed |
-| H7 | Hermes real choices | PARTIAL | 88% deterministic fallback |
-| H8 | Market saturates | **CONFIRMED** | bid → 0 at n>80 |
+| H | Claim | Status | Evidence | Caveat |
+|---|---|---|---|---|
+| H1 | Sponsor ≠ organic rank | **CONFIRMED** | separated_ids quality = paid_rank_bad quality | Bad sponsor has slightly HIGHER utility because hidden winner is actually good. Needs bad/mediocre/adversarial negative controls |
+| H2 | Scarce reveals create real choices | **CONFIRMED** | 79.6% vs 100% — 20.4% switch | Synthetic personas, not real agents. Hypothesis excellent, empirical proof pending |
+| H3 | K=4 optimal | PROVISIONAL | Synthetic proven, live not validated | |
+| H4 | BWS anti-cheat works | **CONFIRMED** | delta 0.0017 | |
+| H5 | Wash detectable | **CONFIRMED** | 1.0 self-deal vs 0.0 clean | |
+| H6 | Lifecycle funds | PROVISIONAL | Not stressed | |
+| H7 | Hermes real choices | **PLUMBING ONLY** | Daemon works, fallback works | **Hermes doesn't actually choose.** Precomputed best/worst is fed in prompt, recorded regardless of response. No real agent preference data exists. |
+| H8 | Market saturates | **CONFIRMED** | bid → 0 at n>80 | |
 
 ---
 
@@ -130,13 +130,18 @@ Saturates at $1 budget. No marginal gain beyond $5. Mechanism is capital-efficie
 5. **Test suite is solid** — 28/28 pass, key invariants verified
 6. **Simulation infrastructure** — deterministic, reproducible, byte-for-byte
 
-## What's Broken
+## What's Broken (Found in Audit)
 
-1. **LLM gateway** — ox-alpha flaky, 75% deterministic fallback. No real agent preferences.
-2. **Only 2 providers** — toy setup, not real routing
-3. **No real x402 endpoints** — simulation only
-4. **Daemon uses iter_n % 4** for K, not real uncertainty
-5. **No tournament in daemon** — only record_best_worst, not record_tournament
+1. **Hermes daemon doesn't use Hermes's choice** — Precomputes best/worst by max/min similarity, tells Hermes the answer in the prompt, records precomputed answer regardless. H7 = PLUMBING ONLY.
+2. **Scarce-reveal result is synthetic** — 79.6% vs 100% from generated personas. Not real agents. H2 hypothesis excellent, proof pending.
+3. **paid_rank_bad has a flaw** — Bad policy has slightly higher utility because hidden winner is actually good. Needs adversarial sponsor negative controls.
+4. **Retrieval uncertainty selector has a bug** — `retrieval.py` picks provider with MOST observations as "uncertain" (should be least). `slate.py` is correct.
+5. **feedback_simulation.py hardcodes assumptions** — "low effort 30% → 2%" is an input, not an observed result.
+6. **OPE propensities not logged** — Architecture includes IPS/SNIPS/DR but propensities are only approximated.
+7. **ArenaEvidenceV1 uses SHA-256 placeholder** — Not genuine cryptographic signatures.
+8. **Only 2 providers** — Toy setup, not real routing.
+9. **75% deterministic fallback** — No real agent preferences.
+10. **No real x402 endpoints indexed** — Simulation only.
 
 ## What's Missing
 
