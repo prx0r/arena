@@ -1,4 +1,29 @@
-# 402Arena mechanism specification v0.2
+# 402Arena mechanism specification v0.3
+
+## Vertical: Research Arena (first)
+
+Research/search is the first vertical. Real x402 demand exists (Tavily ~60K calls/422 payers, Exa ~11K/265). Arena learns: **for what query does which research/search engine win?**
+
+Second vertical: images (structurally clean blind comparison, lower demand today).
+Third: code generation. Later: video.
+Not: creative writing (agents call LLMs directly, no moat).
+
+## Capability lineage
+
+Arena tracks upstream engines, not just URLs. Three Tavily wrappers are the same capability; a custom crawler + Claude is different.
+
+```text
+Provider
+ └── Endpoint
+      ├── capability_family: research.web, research.finance, image.gen
+      ├── upstream_family: tavily, exa, custom
+      ├── pipeline_fingerprint: hash(model + sources + steps)
+      ├── model_family
+      ├── data_sources
+      └── version
+```
+
+Evidence transfers across same-family providers. The `capability_family` field determines substitutability for blind tournament selection.
 
 ## Objective
 

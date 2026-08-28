@@ -1,41 +1,78 @@
-# 402Arena v0.2 — Cogym + Base Sepolia mechanism lab
+# 402Arena — Empirical routing for machine-service intelligence
 
-**402Arena is an empirical recommendation layer and market for machine-service evidence.**
-
-> **⚠️ READ FIRST: [`HANDOVER.md`](HANDOVER.md) — timestamped status, queue, 25 missing mechanics, all docs.** Start here.
-
-The core rule is deliberately strict:
+**402Arena learns which machine service produces the best outcome for each kind of job.**
 
 > **Money buys experiments. Evidence buys organic ranking.**
 
 A provider can fund controlled blind trials or bounties that generate missing evidence. Funding cannot directly increase the buyer-facing organic score. Buyers get useful recommendations from prior real calls; their consequential reveal/purchase behavior creates preference data; agents can sell verified x402 traces when Arena currently values that evidence.
 
-This repository is designed to progress in four reproducible stages:
+## Vertical: Research Arena (first)
 
-1. **Pure deterministic simulation** — no chain, no API keys, no money.
-2. **Frozen-data replay** — 402Pilot and other datasets; off-policy and cold-start experiments.
-3. **Base Sepolia witness** — testnet USDC, x402 v2, signed offer/receipt evidence, research escrow.
-4. **Mainnet production only after gates pass** — bounded budgets, shadow routing, batch Merkle anchoring, then limited real traffic.
+Research/search is the first vertical because real x402 demand exists:
 
-## Why the split matters
+| Provider | 30d calls | Unique payers | What it does |
+|----------|-----------|---------------|--------------|
+| Tavily search | ~60,307 | 422 | Agent web search |
+| Exa search | ~11,002 | 265 | Neural search + contents |
+| You.com deep research | — | — | $0.11 deep / $0.50 exhaustive |
+| Agent402 reports | — | — | $0.60–$1.10 finished research |
 
-402Arena runs two separate policies:
+Arena learns: **for what query does which research/search engine win?**
 
 ```text
-RECOMMEND POLICY                  ARENA RESEARCH POLICY
-buyer utility first               information gain first
-no sponsor term                   sponsor budget may fund exposure
-historical outcomes               uncertainty / novelty / drift
-price / latency / reliability     conservative buyer-regret constraint
-          |                                |
-          +---------- evidence ------------+
+"latest news about X"
+    → Tavily may dominate
+
+"obscure technical papers about X"
+    → Exa may dominate
+
+"finance question with synthesis"
+    → You.com research
+
+"investigate this person's public footprint"
+    → specialized researcher
+
+"research this token"
+    → crypto-specific service
 ```
 
-A sponsored provider may occupy a qualified **experimental slot** because it funded the experiment. Its sponsor balance is never read by the organic scorer.
+## Why research, not creative writing
 
-## Buyer mechanism: consequential partial ranking
+An agent holding an LLM can ask it to "write this better" directly. Generic prose has no moat for a middleman.
 
-The default interaction is a **5 → 2 → 1 blind tournament** (K is actually adaptive and should be learned):
+Research is different because the product includes:
+- retrieval infrastructure
+- proprietary sources
+- multi-step search
+- citation handling
+- synthesis and specialization
+
+These are capabilities the buyer cannot trivially invoke themselves.
+
+## Why not images first?
+
+Images have cleaner blind comparison but lower current x402 demand (~34 calls/30 payers vs Tavily's 60K). Images are **#2** — structurally beautiful market, just less demand today.
+
+## Rank capabilities, not URLs
+
+The x402 ecosystem has tons of wrappers. Arena must understand capability lineage:
+
+```text
+Provider
+ └── Endpoint
+      ├── capability_family: research.web
+      ├── upstream_family: tavily
+      ├── pipeline_fingerprint
+      ├── model_family
+      ├── data_sources
+      └── version
+```
+
+Evidence transfers across same-family providers. Three Tavily wrappers are the same capability; a custom crawler + Claude is different.
+
+## How it works
+
+### Buyer mechanism: 5→2→1 blind tournament
 
 ```text
 5 blind historical outputs
@@ -49,17 +86,41 @@ buy, or reveal second finalist
 actual purchase + downstream outcome
 ```
 
-This yields defensible partial-order evidence without pretending a single click means “winner beats every unseen item.” For example:
+Partial order: `E > B > {A,C,D}`. No ordering among eliminated set.
+
+### Research routing
 
 ```text
-E > B > {A,C,D}
+query
+  ↓
+task classifier (research.web, research.finance, research.person, ...)
+  ↓
+find substitutable services by capability_family
+  ↓
+Arena posterior for this request cluster
+  ↓
+price / quality / latency frontier
+  ↓
+route
+  ↓
+capture outcome evidence
+  ↓
+update provider niches
 ```
 
-but Arena records no ordering among A/C/D.
+### Two separate policies
 
-## Provider mechanism
+```text
+RECOMMEND POLICY                  ARENA RESEARCH POLICY
+buyer utility first               information gain first
+no sponsor term                   sponsor budget may fund exposure
+historical outcomes               uncertainty / novelty / drift
+price / latency / reliability     conservative buyer-regret constraint
+          |                                |
+          +---------- evidence ------------+
+```
 
-A new x402 provider has no historical output, so it enters through a funded research campaign:
+### Provider lifecycle
 
 ```text
 UNSEEN
@@ -72,17 +133,26 @@ CHALLENGER
   └─ budget exhausted              → PAUSED
 ```
 
-Additional subsidized trials become more expensive as evidence becomes decisive. Large funding therefore buys more opportunities to test the hypothesis “you are better than our current belief,” but not unlimited exposure.
-
-## Agent evidence market
-
-An agent that independently made an x402 call can ask Arena for a bid:
+## Measurable quality dimensions
 
 ```text
-POST /evidence/quote
-```
+OBJECTIVE                          SUBJECTIVE / CONTEXTUAL
+citation validity                  usefulness
+source quality                     depth
+freshness                          relevance
+claim support                      clarity
+coverage                           what the buyer actually needed
+latency                            which report they preferred
+price
+failed calls
+duplication
 
-The bid falls toward zero when the provider/task region is saturated and rises for uncertainty, high future demand, stale evidence, or a new provider. Commissioned bounties reimburse the provider call and add a research reward.
+CONSEQUENTIAL
+did buyer reveal it?
+did buyer purchase it?
+did agent use the information?
+did downstream task succeed?
+```
 
 ## Reproducible simulation
 
@@ -91,100 +161,32 @@ PYTHONPATH=. pytest -q
 PYTHONPATH=. python scripts/run_mechanism_sweep.py --rounds 1200 --seeds 12
 ```
 
-The current deterministic synthetic market has 12 providers, including a hidden cheap niche winner. It compares:
+The deterministic synthetic market has 12 providers including a hidden cheap niche winner. It compares:
 
-- `organic_only` — incumbency / no exploration baseline;
-- `random_explore` — one random challenger;
-- `paid_rank_bad` — deliberately corrupt baseline where sponsor money enters rank;
-- `separated_ids` — organic/research separation + contextual information value + conservative exploration.
-
-`experiments/results/mechanism_sweep.json` contains the generated run snapshot.
-
-## 402Pilot replay
-
-402Pilot commits 823 tasks × 5 providers × 5 response variants = 20,575 frozen responses. Its repository permits research/educational use and asks commercial users to contact the author, so this package does **not** redistribute the dataset.
-
-```bash
-python scripts/fetch_402pilot.py /path/to/402Pilot
-PYTHONPATH=. python scripts/run_402pilot_experiments.py --repo /path/to/402Pilot --rounds 10000
-```
-
-The importer understands the committed `data/tasks/` and `data/pregen/` layout.
-
-## Cogym integration
-
-The overlay implements `arena402.mechanism_lab` against the current Cogym `WorldSpec / ActionSpec / MetricVector` interface.
-
-```bash
-./apply_to_cg.sh /path/to/prx0r/cg
-cd /path/to/prx0r/cg
-cg worlds
-```
-
-The world deterministically evaluates the mechanism choices under identical seeds. `arena402.cogym.deterministic_experiment_receipt()` also produces a content-addressed experiment receipt when running outside a Cogym checkout.
+- `organic_only` — incumbency / no exploration baseline
+- `random_explore` — one random challenger
+- `paid_rank_bad` — sponsor money corrupts rank
+- `separated_ids` — organic/research separation + contextual information value
 
 ## Base Sepolia witness
 
-Official current network values used by the code:
-
-- Base Sepolia chain ID: **84532** / CAIP-2 `eip155:84532`
-- Base Sepolia RPC: `https://sepolia.base.org`
-- testnet USDC: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- Chain ID: **84532** / CAIP-2 `eip155:84532`
+- RPC: `https://sepolia.base.org`
+- Testnet USDC: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
 - x402 test facilitator: `https://x402.org/facilitator`
 
-Testnet USDC has no monetary value.
-
-### 1. Check the RPC
-
 ```bash
-PYTHONPATH=. python scripts/check_base_sepolia.py
+cd chain-ts && npm install && cp .env.example .env && npm run seller
+cd contracts && forge test
 ```
-
-### 2. Run the signed x402 witness
-
-The TypeScript witness uses x402 v2 `@x402/fetch`, `@x402/evm`, and Signed Offers & Receipts. It additionally signs an `arena-provider-evidence-v1` envelope binding the exact request and response hashes because the standard x402 receipt proves delivery but intentionally does not include those hashes.
-
-```bash
-cd chain-ts
-npm install
-cp .env.example .env
-npm run seller
-# second terminal
-npm run buyer
-```
-
-The buyer writes `arena-evidence.json` containing the x402 settlement response plus provider-signed request/response commitments.
-
-### 3. Deploy research escrow on Base Sepolia
-
-The Solidity contracts are intentionally small:
-
-- `ResearchEscrow.sol` — provider-funded USDC research budgets and replay-protected bounty payouts;
-- `EvidenceRootRegistry.sol` — Merkle-root anchoring for evidence batches;
-- `MockUSDC.sol` — local contract tests only.
-
-With Foundry installed:
-
-```bash
-cd contracts
-export BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
-export USDC_ADDRESS=0x036CbD53842c5426634e7929541eC2318f3dCF7e
-export ARENA_OPERATOR=0x...
-forge test
-forge script script/Deploy.s.sol:Deploy --rpc-url base_sepolia --broadcast
-```
-
-No deployment is required for the Python simulation.
 
 ## Production progression
-
-Do not jump from simulation to unrestricted mainnet. The intended gates are:
 
 ```text
 SIMULATION
   ↓ mechanism beats baselines over frozen + synthetic replay
 SEPOLIA
-  ↓ receipts, escrow invariants, replay protection, wallet separation verified
+  ↓ receipts, escrow invariants, replay protection verified
 SHADOW MAINNET
   ↓ recommend but never auto-pay; log propensities and outcomes
 LIMITED LIVE
@@ -192,30 +194,29 @@ LIMITED LIVE
 OPEN LIVE
 ```
 
-See `docs/PRODUCTION_GATES.md` for exact gates.
-
 ## Repository map
 
 ```text
 arena402/
+  models.py           Provider, Observation, capability lineage fields
+  mechanism.py        CampaignState, EvidenceGrade, ProviderArm, RequestContext
   bandits.py          discounted contextual posterior + information value
   slate.py            adaptive K, safe experimental slot, D-optimal proxy
   choice.py           consequential partial-order tournament
   sponsor.py          campaign lifecycle + diminishing trial value
   evidence_market.py  live evidence bids + commissioned bounties
   anti_cheat.py       replay/self-dealing/duplicate + scout reliability
-  simulation.py       deterministic market simulator
-  experiments.py      policy/K/regret-budget sweeps
-  ledger.py           deterministic escrow mirror
-  merkle.py           evidence batch commitments
-  sepolia.py          Base network constants + optional RPC smoke check
-contracts/            Sepolia/mainnet-compatible escrow + root registry
+  retrieval.py        D-optimal opponent selection + eligibility
+  provider_report.py  22-row dashboard with niche map
+  simulation.py       12-provider hidden-winner market simulator
+  x402.py             ArenaEvidenceV1, x402 schemas
+contracts/            Sepolia escrow + root registry
 chain-ts/             x402 v2 signed witness on Base Sepolia
 integration/          Cogym world overlay
 docs/                 mechanism, experiments, threat model, research, rollout
 ```
 
-## Core scientific invariants
+## Core invariants
 
 1. Sponsor balance is absent from organic recommendation score.
 2. Experimental exposure must pass compatibility and conservative-regret gates.

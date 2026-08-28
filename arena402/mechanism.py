@@ -81,6 +81,10 @@ class ProviderArm:
     version: str = "1"
     sponsor_balance_usd: float = 0.0
     metadata: dict[str, Any] = field(default_factory=dict)
+    # Capability lineage: same upstream = same evidence family.
+    capability_family: str = ""
+    upstream_family: str = ""
+    pipeline_fingerprint: str = ""
 
 
 @dataclass(frozen=True)

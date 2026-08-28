@@ -21,6 +21,11 @@ class Provider:
     category: str = "unknown"
     endpoint_fingerprint: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    # Capability lineage: Arena tracks upstream engines, not just URLs.
+    # Three Tavily wrappers are the same capability; a custom crawler is different.
+    capability_family: str = ""       # e.g. "research.web", "research.finance", "image.gen"
+    upstream_family: str = ""         # e.g. "tavily", "exa", "custom"
+    pipeline_fingerprint: str = ""    # hash of model+sources+pipeline steps
 
 
 @dataclass(frozen=True)

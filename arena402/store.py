@@ -20,7 +20,10 @@ CREATE TABLE IF NOT EXISTS providers(
   price_usd REAL NOT NULL,
   category TEXT NOT NULL,
   endpoint_fingerprint TEXT NOT NULL,
-  metadata_json TEXT NOT NULL
+  metadata_json TEXT NOT NULL,
+  capability_family TEXT NOT NULL DEFAULT '',
+  upstream_family TEXT NOT NULL DEFAULT '',
+  pipeline_fingerprint TEXT NOT NULL DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS observations(
   observation_id TEXT PRIMARY KEY,
@@ -106,12 +109,15 @@ class Store:
     def add_provider(self, provider: Provider) -> None:
         with self._lock:
             self.conn.execute(
-                """INSERT INTO providers VALUES(?,?,?,?,?,?,?)
+                """INSERT INTO providers VALUES(?,?,?,?,?,?,?,?,?,?)
                    ON CONFLICT(provider_id) DO UPDATE SET
                    label=excluded.label, endpoint=excluded.endpoint,
                    price_usd=excluded.price_usd, category=excluded.category,
                    endpoint_fingerprint=excluded.endpoint_fingerprint,
-                   metadata_json=excluded.metadata_json""",
+                   metadata_json=excluded.metadata_json,
+                   capability_family=excluded.capability_family,
+                   upstream_family=excluded.upstream_family,
+                   pipeline_fingerprint=excluded.pipeline_fingerprint""",
                 (
                     provider.provider_id,
                     provider.label,
@@ -120,6 +126,9 @@ class Store:
                     provider.category,
                     provider.endpoint_fingerprint,
                     json.dumps(provider.metadata, sort_keys=True),
+                    provider.capability_family,
+                    provider.upstream_family,
+                    provider.pipeline_fingerprint,
                 ),
             )
             self.conn.commit()
